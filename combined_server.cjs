@@ -5,6 +5,8 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+
+
 // Import models and services for Medication Reminder
 const Reminder = require('./models/Reminder.cjs');
 const { sendConfirmationEmail } = require('./utils/emailService.cjs');
@@ -19,7 +21,8 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
@@ -36,7 +39,8 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // Root route for medication reminder UI
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'medreminder.html'));
+//   res.sendFile(path.join(__dirname, 'medreminder.html'));
+  res.sendFile('medreminder.html', { root: path.join(__dirname, 'public') });
 });
 
 // Reminder API route
