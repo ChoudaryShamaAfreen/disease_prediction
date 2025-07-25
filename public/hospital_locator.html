@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Nearby Hospital Locator - HealthPlus</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(120deg, #fff8e7, #fbeeff);
+      color: #333;
+    }
+
+    .header {
+      text-align: center;
+      padding: 40px 20px 10px;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      color: #ff8c00;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 1.1em;
+      color: #cc3366;
+      margin-bottom: 30px;
+    }
+
+    .locator-card {
+      background: #ffffff;
+      border: 2px solid #ffeeba;
+      border-radius: 16px;
+      padding: 30px 20px;
+      width: 90%;
+      max-width: 1000px;
+      margin: auto;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .locator-card button {
+      background-color: #ffc107;
+      color: #000;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+      box-shadow: 0 4px 12px #ffd966;
+    }
+
+    .locator-card button:hover {
+      background-color: #e6b800;
+      transform: scale(1.05);
+    }
+
+    #map {
+      margin-top: 30px;
+      height: 500px;
+      width: 100%;
+      border-radius: 12px;
+      border: 3px solid #ffc10799;
+    }
+
+    @media screen and (max-width: 600px) {
+      .locator-card {
+        padding: 20px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Nearby Hospital Locator</h1>
+    <p>Let HealthPlus find hospitals near you – quick, easy & free.</p>
+  </div>
+
+  <div class="locator-card">
+    <button onclick="locateUser()">Locate Hospitals</button>
+    <div id="map"></div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    let map;
+
+    function locateUser() {
+      if (!navigator.geolocation) {
+        alert("Geolocation not supported.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        // Create map
+        map = L.map('map').setView([lat, lon], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+        }).addTo(map);
+
+        // User location marker
+        L.marker([lat, lon])
+          .addTo(map)
+          .bindPopup('You are here')
+          .openPopup();
+
+        const query = `
+          [out:json];
+          (
+            node["amenity"="hospital"](around:2000,${lat},${lon});
+            way["amenity"="hospital"](around:2000,${lat},${lon});
+            relation["amenity"="hospital"](around:2000,${lat},${lon});
+          );
+          out center;
+        `;
+        const url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query);
+
+        try {
+          const res = await fetch(url);
+          const data = await res.json();
+
+          data.elements.forEach(el => {
+            const hospLat = el.lat || el.center?.lat;
+            const hospLon = el.lon || el.center?.lon;
+            const name = el.tags?.name || "Unnamed Hospital";
+
+            if (hospLat && hospLon) {
+              L.marker([hospLat, hospLon])
+                .addTo(map)
+                .bindPopup(`<strong>${name}</strong>`);
+            }
+          });
+
+          if (data.elements.length === 0) {
+            alert("No hospitals found nearby within 2 km.");
+          }
+
+        } catch (err) {
+          console.error("Failed to fetch hospital data:", err);
+          alert("Something went wrong while loading hospital data.");
+        }
+      }, () => {
+        alert("Unable to retrieve your location.");
+      });
+    }
+  </script>
+</body>
+</html>

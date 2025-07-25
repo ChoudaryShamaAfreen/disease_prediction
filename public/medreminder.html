@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Medication Reminder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f9ff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #2f80ed;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      background-color: #2f80ed;
+      color: white;
+      font-weight: bold;
+      margin-top: 20px;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background-color: #256fd1;
+    }
+    .medication-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .medication-group {
+      align-items: center;
+    }
+    .medication-group input[type="text"] {
+      flex: 2;
+    }
+    .medication-group input[type="time"], .medication-group input[type="number"] {
+      flex: 1;
+    }
+    .daily-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin: 0;
+      white-space: nowrap;
+    }
+    .daily-checkbox input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+    #addMore {
+      background-color: #eee;
+      color: #333;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>🕒 Medication Reminder</h2>
+    <form id="reminderForm">
+      <label for="email">Your Email</label>
+      <input type="email" id="email" required />
+
+      <label for="phone">Your Phone Number</label>
+      <input type="tel" id="phone" pattern="[0-9]{10}" placeholder="Enter 10-digit number" required />
+
+      <div id="medicationList">
+        <label>Medications & Timings</label>
+        <div class="medication-group">
+          <input type="text" name="medication[]" placeholder="e.g. Paracetamol" required />
+          <input type="time" name="time[]" required />
+          <input type="number" name="duration[]" placeholder="Days" min="1" max="30" required />
+          <label class="daily-checkbox">
+            <input type="checkbox" name="isDaily[]" />
+            Daily
+          </label>
+        </div>
+      </div>
+
+      <button type="button" id="addMore">➕ Add More</button>
+
+      <button type="submit">✅ Submit</button>
+    </form>
+    <p id="status" style="text-align: center; color: green; margin-top: 15px;"></p>
+  </div>
+
+  <script>
+    const addMoreBtn = document.getElementById('addMore');
+    const medicationList = document.getElementById('medicationList');
+    const form = document.getElementById('reminderForm');
+    const statusText = document.getElementById('status');
+  
+    function handleDailyCheckboxChange(checkbox) {
+      const durationInput = checkbox.closest('.medication-group').querySelector('input[name="duration[]"]');
+      if (checkbox.checked) {
+        durationInput.style.display = 'none';
+        durationInput.removeAttribute('required');
+        durationInput.value = '30';
+        durationInput.setAttribute('max', '30');
+      } else {
+        durationInput.style.display = '';
+        durationInput.setAttribute('required', '');
+        durationInput.value = '';
+        durationInput.setAttribute('max', '30');
+      }
+    }
+  
+    // Set initial checkbox handler
+    document.querySelector('input[name="isDaily[]"]').addEventListener('change', function() {
+      handleDailyCheckboxChange(this);
+    });
+  
+    addMoreBtn.addEventListener('click', () => {
+      const div = document.createElement('div');
+      div.className = 'medication-group';
+      div.innerHTML = `
+        <input type="text" name="medication[]" placeholder="e.g. Ibuprofen" required />
+        <input type="time" name="time[]" required />
+        <input type="number" name="duration[]" placeholder="Days" min="1" max="30" required />
+        <label class="daily-checkbox">
+          <input type="checkbox" name="isDaily[]" />
+          Daily
+        </label>
+      `;
+      medicationList.appendChild(div);
+  
+      const newCheckbox = div.querySelector('input[name="isDaily[]"]');
+      newCheckbox.addEventListener('change', function () {
+        handleDailyCheckboxChange(this);
+      });
+    });
+  
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+  
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const medications = Array.from(document.getElementsByName('medication[]')).map(input => input.value);
+      const times = Array.from(document.getElementsByName('time[]')).map(input => input.value);
+      const durations = Array.from(document.getElementsByName('duration[]')).map(input => parseInt(input.value));
+      const isDailyArray = Array.from(document.getElementsByName('isDaily[]')).map(input => input.checked);
+  
+      if (!email || !phone || medications.length === 0) {
+        statusText.textContent = "❌ Please fill in all required fields.";
+        statusText.style.color = "red";
+        return;
+      }
+  
+      // Validate phone number format
+      if (!/^\d{10}$/.test(phone)) {
+        statusText.textContent = "❌ Please enter a valid 10-digit phone number";
+        statusText.style.color = "red";
+        return;
+      }
+
+      // Validate email format
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        statusText.textContent = "❌ Please enter a valid email address";
+        statusText.style.color = "red";
+        return;
+      }
+
+      const payload = {
+        email,
+        phoneNumber: phone,
+        medications: medications.map((med, i) => {
+          if (!med || !times[i] || (!isDailyArray[i] && !durations[i])) {
+            throw new Error('Please fill in all medication details');
+          }
+          const duration = isDailyArray[i] ? 999 : parseInt(durations[i]);
+          const endDate = new Date();
+          endDate.setDate(endDate.getDate() + duration);
+          return {
+            name: med.trim(),
+            time: times[i],
+            duration: duration,
+            isDaily: isDailyArray[i],
+            endDate: endDate,
+            nextReminder: new Date()
+          };
+        })
+      };
+  
+      try {
+        const response = await fetch('http://localhost:3000/api/reminders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (response.ok && data.success) {
+          statusText.textContent = "✅ Reminders set successfully!";
+          statusText.style.color = "green";
+          form.reset();
+          
+          // Reset medication list to initial state
+          medicationList.innerHTML = `
+            <label>Medications & Timings</label>
+            <div class="medication-group">
+              <input type="text" name="medication[]" placeholder="e.g. Paracetamol" required />
+              <input type="time" name="time[]" required />
+              <input type="number" name="duration[]" placeholder="Days" min="1" max="30" required />
+              <label class="daily-checkbox">
+                <input type="checkbox" name="isDaily[]" />
+                Daily
+              </label>
+            </div>
+          `;
+    
+          // Re-attach checkbox handler
+          const newCheckbox = document.querySelector('input[name="isDaily[]"]');
+          newCheckbox.addEventListener('change', function () {
+            handleDailyCheckboxChange(this);
+          });
+        } else {
+          statusText.textContent = `❌ ${data.message || 'Failed to set reminders. Please try again.'}`;
+          statusText.style.color = "red";
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        statusText.textContent = "❌ Network error or server is not responding. Please try again later.";
+        statusText.style.color = "red";
+      }
+    });
+  </script>
+  
+
+</body>
+</html>

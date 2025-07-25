@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us | HealthPlus</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #0d0d0d;
+      color: white;
+    }
+
+    .container {
+      padding: 60px 20px;
+      max-width: 900px;
+      margin: auto;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3rem;
+      color: #ffcc00;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #ccc;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+    }
+
+    .assistant-section {
+      margin-top: 40px;
+    }
+
+    .assistant-section button {
+      padding: 15px 35px;
+      background-color: #ffcc00;
+      color: black;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .assistant-section button:hover {
+      background-color: #ffe066;
+    }
+
+    #chatbot {
+      display: none;
+      margin-top: 30px;
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px #ffcc00;
+    }
+
+    footer {
+      margin-top: 60px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    footer a {
+      color: #ffcc00;
+      margin: 0 8px;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Need Help?</h1>
+    <p>Our AI-powered assistant is here to answer your health queries instantly.</p>
+
+    <div class="assistant-section">
+      <button onclick="toggleChatbot()">💬 Chat with HealthPlus Assistant</button>
+    </div>
+
+    <div id="chatbot">
+      <!-- Embed your chatbot here -->
+      <iframe src="http://localhost:3000" width="100%" height="400px" style="border:none; border-radius:10px;"></iframe>
+    </div>
+
+    <footer>
+      <!-- <p>📧 healthplus.help@gmail.com &nbsp; | &nbsp; Follow us:
+        <a href="#">Instagram</a> |
+        <a href="#">Twitter</a> |
+        <a href="#">LinkedIn</a>
+      </p> -->
+      <p>&copy; 2025 HealthPlus. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script>
+    function toggleChatbot() {
+      const chatbot = document.getElementById('chatbot');
+      chatbot.style.display = chatbot.style.display === 'none' ? 'block' : 'none';
+    }
+  </script>
+
+</body>
+</html>
