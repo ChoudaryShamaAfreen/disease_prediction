@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-  "start": "node combined_server.cjs"
+    "start": "node combined_server.cjs"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +13,7 @@
   "description": "",
   "dependencies": {
     "@google/genai": "^1.10.0",
+    "@google/generative-ai": "^0.24.1",
     "concurrently": "^9.2.0",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
